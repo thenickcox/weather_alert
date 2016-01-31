@@ -17,6 +17,7 @@ var url = "http://api.openweathermap.org/data/2.5/forecast?id=" + os.Getenv("CIT
 var ifTTTAPIURL = "https://maker.ifttt.com/trigger/" + eventType + "/with/key/" + os.Getenv("IFTTT_API_KEY")
 
 const eventType = "weather_alert"
+const minTemp = 34
 
 func perror(err error) {
 	if err != nil {
@@ -58,5 +59,10 @@ func main() {
 	dec.Decode(&data)
 	jq := jsonq.NewQuery(data)
 	temp, _ := jq.Float("list", "0", "main", "temp_min")
-	sendSMS(temp)
+	if temp < minTemp {
+		sendSMS(temp)
+	} else {
+		msg := fmt.Sprintf("Temperature will be %.2f, not sending SMS.", temp)
+		fmt.Println(msg)
+	}
 }
